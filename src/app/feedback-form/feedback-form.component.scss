@@ -147,6 +147,18 @@ $success: #10b981;
   animation: fadeIn 0.4s ease;
 }
 
+.server-error-message {
+  color: #fff;
+  background-color: rgba($error, 0.9);
+  padding: 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+  animation: fadeIn 0.4s ease;
+}
+
 .submit-btn {
   width: 100%;
   padding: 1rem;

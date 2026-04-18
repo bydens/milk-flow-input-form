@@ -55,6 +55,11 @@
         </div>
       </div>
 
+      <!-- Уведомление об ошибке сервера -->
+      <div class="server-error-message" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </div>
+
       <!-- Уведомление об успешной отправке -->
       <div class="success-message" *ngIf="isSuccess">
         Ваше сообщение успешно отправлено!
