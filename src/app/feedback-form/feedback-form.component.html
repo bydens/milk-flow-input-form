@@ -2,16 +2,27 @@
   <div class="form-card">
     <div class="form-header">
       <h2>Свяжитесь с нами</h2>
-      <p>Оставьте свой запрос, и наша команда ответит вам в кратчайшие сроки.</p>
+      <p *ngIf="view === 'form'">Оставьте свой запрос, и наша команда ответит вам в кратчайшие сроки.</p>
+      <p *ngIf="view === 'confirm'">Проверьте введённые данные перед отправкой.</p>
     </div>
 
-    <form [formGroup]="feedbackForm" (ngSubmit)="onSubmit()" class="feedback-form">
-      
+    <!-- Уведомление об успешной отправке -->
+    <div class="success-message" *ngIf="isSuccess && view === 'form'">
+      Ваше сообщение успешно отправлено! Можете ввести новое.
+    </div>
+
+    <!-- ФОРМА -->
+    <form
+      *ngIf="view === 'form'"
+      [formGroup]="feedbackForm"
+      (ngSubmit)="onReview()"
+      class="feedback-form"
+    >
       <!-- Поле: Имя -->
       <div class="form-group" [class.has-error]="isFieldInvalid('name')">
         <input type="text" id="name" formControlName="name" placeholder=" " autocomplete="name" />
         <label for="name">Ваше имя</label>
-        
+
         <div class="error-message" *ngIf="isFieldInvalid('name')">
           <span *ngIf="feedbackForm.get('name')?.errors?.['required']">Имя обязательно для заполнения</span>
           <span *ngIf="feedbackForm.get('name')?.errors?.['minlength']">Имя должно содержать минимум 2 символа</span>
@@ -22,7 +33,7 @@
       <div class="form-group" [class.has-error]="isFieldInvalid('email')">
         <input type="email" id="email" formControlName="email" placeholder=" " autocomplete="email" />
         <label for="email">Email адрес</label>
-        
+
         <div class="error-message" *ngIf="isFieldInvalid('email')">
           <span *ngIf="feedbackForm.get('email')?.errors?.['required']">Email обязателен</span>
           <span *ngIf="feedbackForm.get('email')?.errors?.['email']">Введите корректный Email</span>
@@ -38,7 +49,7 @@
           <option value="other">Другое</option>
         </select>
         <label for="subject">Тема запроса</label>
-        
+
         <div class="error-message" *ngIf="isFieldInvalid('subject')">
           <span>Пожалуйста, выберите тему</span>
         </div>
@@ -48,29 +59,79 @@
       <div class="form-group textarea-group" [class.has-error]="isFieldInvalid('message')">
         <textarea id="message" formControlName="message" placeholder=" " rows="4"></textarea>
         <label for="message">Ваше сообщение</label>
-        
+
         <div class="error-message" *ngIf="isFieldInvalid('message')">
           <span *ngIf="feedbackForm.get('message')?.errors?.['required']">Сообщение обязательно</span>
           <span *ngIf="feedbackForm.get('message')?.errors?.['minlength']">Сообщение должно быть не менее 10 символов</span>
         </div>
       </div>
 
-      <!-- Уведомление об ошибке сервера -->
-      <div class="server-error-message" *ngIf="errorMessage">
-        {{ errorMessage }}
-      </div>
-
-      <!-- Уведомление об успешной отправке -->
-      <div class="success-message" *ngIf="isSuccess">
-        Ваше сообщение успешно отправлено!
-      </div>
-
-      <!-- Кнопка отправки -->
-      <button type="submit" class="submit-btn" [disabled]="feedbackForm.invalid || isSubmitting">
-        <span *ngIf="!isSubmitting">Отправить сообщение</span>
-        <span *ngIf="isSubmitting" class="loader"></span>
+      <!-- Кнопка перехода к подтверждению -->
+      <button type="submit" class="submit-btn" [disabled]="feedbackForm.invalid">
+        Продолжить
       </button>
-
     </form>
+
+    <!-- ЭКРАН ПОДТВЕРЖДЕНИЯ -->
+    <div *ngIf="view === 'confirm'" class="confirmation">
+      <dl class="summary">
+        <div class="summary-row">
+          <dt>Имя</dt>
+          <dd>{{ formData.name }}</dd>
+        </div>
+        <div class="summary-row">
+          <dt>Email</dt>
+          <dd>{{ formData.email }}</dd>
+        </div>
+        <div class="summary-row">
+          <dt>Тема</dt>
+          <dd>{{ subjectLabel(formData.subject) }}</dd>
+        </div>
+        <div class="summary-row">
+          <dt>Сообщение</dt>
+          <dd class="summary-message">{{ formData.message }}</dd>
+        </div>
+      </dl>
+
+      <!-- Уведомление об ошибке сервера -->
+      <div class="server-error-message" *ngIf="submitError">
+        <div class="server-error-title">Не удалось отправить данные.</div>
+        <div class="server-error-details">
+          <span *ngIf="submitError.status">Код: {{ submitError.status }}<span *ngIf="submitError.statusText"> {{ submitError.statusText }}</span></span>
+          <span *ngIf="submitError.message">{{ submitError.message }}</span>
+        </div>
+        <div class="server-error-hint">
+          Данные сохранены локально — вы можете повторить отправку позже.
+        </div>
+      </div>
+
+      <div class="confirm-actions">
+        <button
+          type="button"
+          class="action-btn cancel-btn"
+          (click)="onCancel()"
+          [disabled]="isSubmitting"
+        >
+          Отменить
+        </button>
+        <button
+          type="button"
+          class="action-btn edit-btn"
+          (click)="onEdit()"
+          [disabled]="isSubmitting"
+        >
+          Исправить
+        </button>
+        <button
+          type="button"
+          class="action-btn submit-btn"
+          (click)="onSubmit()"
+          [disabled]="isSubmitting"
+        >
+          <span *ngIf="!isSubmitting">Отправить</span>
+          <span *ngIf="isSubmitting" class="loader"></span>
+        </button>
+      </div>
+    </div>
   </div>
 </div>

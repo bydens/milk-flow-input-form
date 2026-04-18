@@ -150,13 +150,129 @@ $success: #10b981;
 .server-error-message {
   color: #fff;
   background-color: rgba($error, 0.9);
-  padding: 1rem;
+  padding: 1rem 1.25rem;
   border-radius: 8px;
   font-size: 0.9rem;
-  text-align: center;
+  text-align: left;
   margin-bottom: 1.5rem;
   font-weight: 500;
   animation: fadeIn 0.4s ease;
+  line-height: 1.5;
+
+  .server-error-title {
+    font-weight: 600;
+    margin-bottom: 0.35rem;
+  }
+
+  .server-error-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    font-weight: 400;
+    word-break: break-word;
+    margin-bottom: 0.35rem;
+  }
+
+  .server-error-hint {
+    font-weight: 400;
+    opacity: 0.9;
+    font-size: 0.85rem;
+  }
+}
+
+.confirmation {
+  animation: fadeIn 0.3s ease;
+}
+
+.summary {
+  margin: 0 0 1.75rem;
+  padding: 0;
+  border: 1.5px solid $border-color;
+  border-radius: 10px;
+  background-color: #fafbfc;
+  overflow: hidden;
+}
+
+.summary-row {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 1rem;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid $border-color;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  dt {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: $text-muted;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    align-self: start;
+    padding-top: 0.1rem;
+  }
+
+  dd {
+    margin: 0;
+    font-size: 0.95rem;
+    color: $text-main;
+    word-break: break-word;
+  }
+}
+
+.summary-message {
+  white-space: pre-wrap;
+  line-height: 1.5;
+}
+
+.confirm-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.action-btn {
+  padding: 0.9rem 0.75rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1.5px solid transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 52px;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}
+
+.cancel-btn {
+  background-color: #fff;
+  color: $error;
+  border-color: rgba($error, 0.4);
+
+  &:hover:not(:disabled) {
+    background-color: rgba($error, 0.08);
+    border-color: $error;
+  }
+}
+
+.edit-btn {
+  background-color: #fff;
+  color: $text-main;
+  border-color: $border-color;
+
+  &:hover:not(:disabled) {
+    background-color: #f1f5f9;
+    border-color: $text-muted;
+  }
 }
 
 .submit-btn {
@@ -228,5 +344,14 @@ $success: #10b981;
 
   .form-header h2 {
     font-size: 1.5rem;
+  }
+
+  .confirm-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .summary-row {
+    grid-template-columns: 1fr;
+    gap: 0.25rem;
   }
 }
