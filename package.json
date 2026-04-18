@@ -6,7 +6,8 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "deploy": "ng deploy --repo=https://github.com/bydens/milk-flow-input-form --base-href=/milk-flow-input-form/"
   },
   "prettier": {
     "printWidth": 100,
