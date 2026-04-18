@@ -1,14 +1,13 @@
 <div class="form-wrapper">
   <div class="form-card">
     <div class="form-header">
-      <h2>Свяжитесь с нами</h2>
-      <p *ngIf="view === 'form'">Оставьте свой запрос, и наша команда ответит вам в кратчайшие сроки.</p>
+      <h2>ИДЕНТИФИКАЦИЯ</h2>
       <p *ngIf="view === 'confirm'">Проверьте введённые данные перед отправкой.</p>
     </div>
 
     <!-- Уведомление об успешной отправке -->
     <div class="success-message" *ngIf="isSuccess && view === 'form'">
-      Ваше сообщение успешно отправлено! Можете ввести новое.
+      Данные успешно отправлены. Можете ввести новые.
     </div>
 
     <!-- ФОРМА -->
@@ -18,55 +17,91 @@
       (ngSubmit)="onReview()"
       class="feedback-form"
     >
-      <!-- Поле: Имя -->
-      <div class="form-group" [class.has-error]="isFieldInvalid('name')">
-        <input type="text" id="name" formControlName="name" placeholder=" " autocomplete="name" />
-        <label for="name">Ваше имя</label>
+      <div class="form-row">
+        <!-- Дата -->
+        <div class="form-group" [class.has-error]="isFieldInvalid('date')">
+          <label for="date">Дата</label>
+          <input type="date" id="date" formControlName="date" />
+          <div class="error-message" *ngIf="isFieldInvalid('date')">
+            <span>Укажите дату</span>
+          </div>
+        </div>
 
-        <div class="error-message" *ngIf="isFieldInvalid('name')">
-          <span *ngIf="feedbackForm.get('name')?.errors?.['required']">Имя обязательно для заполнения</span>
-          <span *ngIf="feedbackForm.get('name')?.errors?.['minlength']">Имя должно содержать минимум 2 символа</span>
+        <!-- Время начала -->
+        <div class="form-group" [class.has-error]="isFieldInvalid('startTime')">
+          <label for="startTime">Время начала (загрузка)</label>
+          <input type="time" id="startTime" formControlName="startTime" />
+          <div class="error-message" *ngIf="isFieldInvalid('startTime')">
+            <span *ngIf="feedbackForm.get('startTime')?.errors?.['required']">Укажите время</span>
+            <span *ngIf="feedbackForm.get('startTime')?.errors?.['pattern']">Формат ЧЧ:ММ</span>
+          </div>
         </div>
       </div>
 
-      <!-- Поле: Email -->
-      <div class="form-group" [class.has-error]="isFieldInvalid('email')">
-        <input type="email" id="email" formControlName="email" placeholder=" " autocomplete="email" />
-        <label for="email">Email адрес</label>
+      <div class="form-row">
+        <!-- № варки -->
+        <div class="form-group" [class.has-error]="isFieldInvalid('brewNumber')">
+          <label for="brewNumber">№ варки (= № докум.)</label>
+          <input type="text" id="brewNumber" formControlName="brewNumber" autocomplete="off" placeholder="Например, W33" />
+          <div class="error-message" *ngIf="isFieldInvalid('brewNumber')">
+            <span *ngIf="feedbackForm.get('brewNumber')?.errors?.['required']">Укажите № варки</span>
+            <span *ngIf="feedbackForm.get('brewNumber')?.errors?.['minlength']">Минимум 2 символа</span>
+          </div>
+        </div>
 
-        <div class="error-message" *ngIf="isFieldInvalid('email')">
-          <span *ngIf="feedbackForm.get('email')?.errors?.['required']">Email обязателен</span>
-          <span *ngIf="feedbackForm.get('email')?.errors?.['email']">Введите корректный Email</span>
+        <!-- № стрейчмашины -->
+        <div class="form-group" [class.has-error]="isFieldInvalid('stretchMachineNumber')">
+          <label for="stretchMachineNumber">№ стрейчмашины</label>
+          <select id="stretchMachineNumber" formControlName="stretchMachineNumber">
+            <option value="" disabled hidden></option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+          </select>
+          <div class="error-message" *ngIf="isFieldInvalid('stretchMachineNumber')">
+            <span>Выберите № стрейчмашины</span>
+          </div>
         </div>
       </div>
 
-      <!-- Поле: Тема запроса -->
-      <div class="form-group" [class.has-error]="isFieldInvalid('subject')">
-        <select id="subject" formControlName="subject" [class.has-value]="feedbackForm.get('subject')?.value">
-          <option value="" disabled selected hidden></option>
-          <option value="support">Техподдержка</option>
-          <option value="sales">Отдел продаж</option>
-          <option value="other">Другое</option>
-        </select>
-        <label for="subject">Тема запроса</label>
+      <div class="form-row">
+        <!-- № партии продукта -->
+        <div class="form-group" [class.has-error]="isFieldInvalid('productBatchNumber')">
+          <label for="productBatchNumber">№ партии продукта</label>
+          <input type="number" id="productBatchNumber" formControlName="productBatchNumber" min="1" step="1" inputmode="numeric" placeholder="Например, 385" />
+          <div class="error-message" *ngIf="isFieldInvalid('productBatchNumber')">
+            <span *ngIf="feedbackForm.get('productBatchNumber')?.errors?.['required']">Укажите № партии</span>
+            <span *ngIf="feedbackForm.get('productBatchNumber')?.errors?.['pattern']">Только целое число</span>
+            <span *ngIf="feedbackForm.get('productBatchNumber')?.errors?.['min']">Должно быть &gt; 0</span>
+          </div>
+        </div>
 
-        <div class="error-message" *ngIf="isFieldInvalid('subject')">
-          <span>Пожалуйста, выберите тему</span>
+        <!-- Партия зерна -->
+        <div class="form-group" [class.has-error]="isFieldInvalid('grainBatchNumber')">
+          <label for="grainBatchNumber">Партия зерна</label>
+          <input type="text" id="grainBatchNumber" formControlName="grainBatchNumber" autocomplete="off" placeholder="Например, W33.1" />
+          <div class="error-message" *ngIf="isFieldInvalid('grainBatchNumber')">
+            <span *ngIf="feedbackForm.get('grainBatchNumber')?.errors?.['required']">Укажите партию зерна</span>
+            <span *ngIf="feedbackForm.get('grainBatchNumber')?.errors?.['minlength']">Минимум 2 символа</span>
+          </div>
         </div>
       </div>
 
-      <!-- Поле: Сообщение -->
-      <div class="form-group textarea-group" [class.has-error]="isFieldInvalid('message')">
-        <textarea id="message" formControlName="message" placeholder=" " rows="4"></textarea>
-        <label for="message">Ваше сообщение</label>
-
-        <div class="error-message" *ngIf="isFieldInvalid('message')">
-          <span *ngIf="feedbackForm.get('message')?.errors?.['required']">Сообщение обязательно</span>
-          <span *ngIf="feedbackForm.get('message')?.errors?.['minlength']">Сообщение должно быть не менее 10 символов</span>
+      <!-- Оператор -->
+      <div class="form-group" [class.has-error]="isFieldInvalid('operator')">
+        <label for="operator">Оператор (ФИО)</label>
+        <input type="text" id="operator" formControlName="operator" autocomplete="name" placeholder="Например, Олена Попова" />
+        <div class="error-message" *ngIf="isFieldInvalid('operator')">
+          <span *ngIf="feedbackForm.get('operator')?.errors?.['required']">Укажите ФИО оператора</span>
+          <span *ngIf="feedbackForm.get('operator')?.errors?.['minlength']">Минимум 2 символа</span>
         </div>
       </div>
 
-      <!-- Кнопка перехода к подтверждению -->
+      <!-- Комментарий -->
+      <div class="form-group">
+        <label for="comments">Комментарий <span class="optional">(необязательно)</span></label>
+        <textarea id="comments" formControlName="comments" rows="3" placeholder="Дополнительная информация"></textarea>
+      </div>
+
       <button type="submit" class="submit-btn" [disabled]="feedbackForm.invalid">
         Продолжить
       </button>
@@ -76,20 +111,40 @@
     <div *ngIf="view === 'confirm'" class="confirmation">
       <dl class="summary">
         <div class="summary-row">
-          <dt>Имя</dt>
-          <dd>{{ formData.name }}</dd>
+          <dt>ID записи</dt>
+          <dd class="summary-id">{{ previewPayload.id }}</dd>
         </div>
         <div class="summary-row">
-          <dt>Email</dt>
-          <dd>{{ formData.email }}</dd>
+          <dt>Дата</dt>
+          <dd>{{ previewPayload.date }}</dd>
         </div>
         <div class="summary-row">
-          <dt>Тема</dt>
-          <dd>{{ subjectLabel(formData.subject) }}</dd>
+          <dt>Время начала</dt>
+          <dd>{{ previewPayload.startTime }}</dd>
         </div>
         <div class="summary-row">
-          <dt>Сообщение</dt>
-          <dd class="summary-message">{{ formData.message }}</dd>
+          <dt>№ варки</dt>
+          <dd>{{ previewPayload.brewNumber }}</dd>
+        </div>
+        <div class="summary-row">
+          <dt>№ стрейчмашины</dt>
+          <dd>{{ previewPayload.stretchMachineNumber }}</dd>
+        </div>
+        <div class="summary-row">
+          <dt>№ партии продукта</dt>
+          <dd>{{ previewPayload.productBatchNumber }}</dd>
+        </div>
+        <div class="summary-row">
+          <dt>Партия зерна</dt>
+          <dd>{{ previewPayload.grainBatchNumber }}</dd>
+        </div>
+        <div class="summary-row">
+          <dt>Оператор</dt>
+          <dd>{{ previewPayload.operator }}</dd>
+        </div>
+        <div class="summary-row" *ngIf="previewPayload.comments">
+          <dt>Комментарий</dt>
+          <dd class="summary-message">{{ previewPayload.comments }}</dd>
         </div>
       </dl>
 

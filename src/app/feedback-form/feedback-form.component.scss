@@ -13,7 +13,7 @@ $success: #10b981;
 .form-wrapper {
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   min-height: 100vh;
   background-color: $bg-color;
   padding: 1.5rem;
@@ -23,11 +23,11 @@ $success: #10b981;
 .form-card {
   background-color: #ffffff;
   width: 100%;
-  max-width: 480px;
+  max-width: 560px;
   border-radius: 16px;
-  padding: 2.5rem 2rem;
+  padding: 2rem;
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: box-shadow 0.3s ease;
 
   &:hover {
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
@@ -36,93 +36,101 @@ $success: #10b981;
 
 .form-header {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1.75rem;
 
   h2 {
     margin: 0 0 0.5rem;
-    font-size: 1.75rem;
+    font-size: 1.5rem;
     font-weight: 600;
+    letter-spacing: 0.04em;
     color: $text-main;
   }
 
   p {
     margin: 0;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     color: $text-muted;
     line-height: 1.5;
   }
 }
 
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
 .form-group {
-  position: relative;
-  margin-bottom: 1.75rem;
+  margin-bottom: 1.1rem;
+
+  label {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: $text-main;
+  }
+
+  .optional {
+    font-weight: 400;
+    color: $text-muted;
+    font-size: 0.8rem;
+    margin-left: 0.25rem;
+  }
 
   input, select, textarea {
     width: 100%;
-    padding: 1rem 1rem;
+    padding: 0.75rem 0.9rem;
     font-family: 'Inter', sans-serif;
     font-size: 1rem;
     color: $text-main;
-    background-color: transparent;
+    background-color: #ffffff;
     border: 1.5px solid $border-color;
-    border-radius: 10px;
+    border-radius: 8px;
     outline: none;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
     box-sizing: border-box;
-    appearance: none; // Скрываем дефолтную стрелку select для стильного вида
 
     &:focus {
       border-color: $primary;
       box-shadow: 0 0 0 4px rgba($primary, 0.15);
     }
 
-    // Плавающий лейбл активируется при фокусе или если есть значение
-    &:focus ~ label,
-    &:not(:placeholder-shown) ~ label,
-    &.has-value ~ label {
-      top: -0.5rem;
-      left: 0.8rem;
-      font-size: 0.75rem;
-      font-weight: 500;
-      color: $primary;
-      background-color: #ffffff;
-      padding: 0 0.4rem;
+    &::placeholder {
+      color: #94a3b8;
     }
   }
 
   select {
+    appearance: none;
     background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
     background-repeat: no-repeat;
-    background-position: right 1rem center;
+    background-position: right 0.75rem center;
     background-size: 1em;
+    padding-right: 2.25rem;
   }
 
   textarea {
     resize: vertical;
-    min-height: 120px;
+    min-height: 80px;
+    font-family: inherit;
   }
 
-  label {
-    position: absolute;
-    top: 1.1rem;
-    left: 1rem;
-    font-size: 1rem;
-    color: $text-muted;
-    pointer-events: none;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    background-color: transparent;
+  input[type="date"],
+  input[type="time"] {
+    min-height: 44px;
   }
 
   /* Состояние ошибки */
   &.has-error {
+    label {
+      color: $error;
+    }
     input, select, textarea {
       border-color: $error;
       &:focus {
         box-shadow: 0 0 0 4px rgba($error, 0.15);
       }
-    }
-    label {
-      color: $error;
     }
   }
 }
@@ -130,19 +138,18 @@ $success: #10b981;
 .error-message {
   color: $error;
   font-size: 0.8rem;
-  margin-top: 0.4rem;
-  margin-left: 0.2rem;
+  margin-top: 0.35rem;
   animation: slideDown 0.3s ease forwards;
 }
 
 .success-message {
   color: $success;
   background-color: rgba($success, 0.1);
-  padding: 1rem;
+  padding: 0.9rem 1rem;
   border-radius: 8px;
   font-size: 0.9rem;
   text-align: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
   font-weight: 500;
   animation: fadeIn 0.4s ease;
 }
@@ -180,12 +187,47 @@ $success: #10b981;
   }
 }
 
+.submit-btn {
+  width: 100%;
+  padding: 0.9rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffff;
+  background-color: $primary;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 48px;
+  margin-top: 0.5rem;
+
+  &:hover:not(:disabled) {
+    background-color: $primary-hover;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba($primary, 0.3);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    background-color: #93c5fd;
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+}
+
 .confirmation {
   animation: fadeIn 0.3s ease;
 }
 
 .summary {
-  margin: 0 0 1.75rem;
+  margin: 0 0 1.5rem;
   padding: 0;
   border: 1.5px solid $border-color;
   border-radius: 10px;
@@ -195,9 +237,9 @@ $success: #10b981;
 
 .summary-row {
   display: grid;
-  grid-template-columns: 140px 1fr;
+  grid-template-columns: 170px 1fr;
   gap: 1rem;
-  padding: 0.85rem 1rem;
+  padding: 0.75rem 1rem;
   border-bottom: 1px solid $border-color;
 
   &:last-child {
@@ -205,7 +247,7 @@ $success: #10b981;
   }
 
   dt {
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     font-weight: 500;
     color: $text-muted;
     text-transform: uppercase;
@@ -222,6 +264,12 @@ $success: #10b981;
   }
 }
 
+.summary-id {
+  font-family: 'SFMono-Regular', Menlo, Consolas, monospace;
+  font-size: 0.9rem !important;
+  color: $primary !important;
+}
+
 .summary-message {
   white-space: pre-wrap;
   line-height: 1.5;
@@ -230,13 +278,13 @@ $success: #10b981;
 .confirm-actions {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  gap: 0.75rem;
+  gap: 0.6rem;
 }
 
 .action-btn {
-  padding: 0.9rem 0.75rem;
+  padding: 0.85rem 0.6rem;
   font-family: 'Inter', sans-serif;
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 600;
   border-radius: 10px;
   cursor: pointer;
@@ -245,7 +293,8 @@ $success: #10b981;
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 52px;
+  min-height: 48px;
+  margin-top: 0;
 
   &:disabled {
     cursor: not-allowed;
@@ -275,41 +324,6 @@ $success: #10b981;
   }
 }
 
-.submit-btn {
-  width: 100%;
-  padding: 1rem;
-  font-family: 'Inter', sans-serif;
-  font-size: 1.05rem;
-  font-weight: 600;
-  color: #ffffff;
-  background-color: $primary;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 52px;
-
-  &:hover:not(:disabled) {
-    background-color: $primary-hover;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba($primary, 0.3);
-  }
-
-  &:active:not(:disabled) {
-    transform: translateY(0);
-  }
-
-  &:disabled {
-    background-color: #93c5fd;
-    cursor: not-allowed;
-    opacity: 0.7;
-  }
-}
-
 /* Анимации */
 @keyframes slideDown {
   from { opacity: 0; transform: translateY(-5px); }
@@ -323,8 +337,8 @@ $success: #10b981;
 
 /* CSS Лоадер для кнопки */
 .loader {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   border: 3px solid rgba(255, 255, 255, 0.3);
   border-radius: 50%;
   border-top-color: #fff;
@@ -336,14 +350,19 @@ $success: #10b981;
 }
 
 /* Адаптивность для мобильных устройств */
-@media (max-width: 480px) {
+@media (max-width: 560px) {
   .form-card {
     padding: 1.5rem;
     border-radius: 12px;
   }
 
   .form-header h2 {
-    font-size: 1.5rem;
+    font-size: 1.3rem;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 0;
   }
 
   .confirm-actions {

@@ -6,11 +6,28 @@ import { environment } from '../../environments/environment';
 
 type View = 'form' | 'confirm';
 
-interface FeedbackData {
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
+interface IdentificationFormData {
+  date: string;          // YYYY-MM-DD (native date input)
+  startTime: string;     // HH:MM
+  brewNumber: string;    // e.g. W33
+  stretchMachineNumber: string; // "1" | "2"
+  productBatchNumber: string | number; // number, stored as string from input
+  grainBatchNumber: string; // e.g. W33.1
+  operator: string;
+  comments: string;
+}
+
+interface IdentificationPayload {
+  id: string;                    // date + time + brewNumber
+  submittedAt: string;           // ISO timestamp
+  date: string;                  // DD.MM.YYYY
+  startTime: string;             // HH:MM
+  brewNumber: string;
+  stretchMachineNumber: string;
+  productBatchNumber: number;
+  grainBatchNumber: string;
+  operator: string;
+  comments: string;
 }
 
 interface SubmitError {
@@ -19,7 +36,7 @@ interface SubmitError {
   message: string;
 }
 
-const STORAGE_KEY = 'feedbackFormData';
+const STORAGE_KEY = 'identificationFormData';
 
 @Component({
   selector: 'app-feedback-form',
@@ -35,18 +52,16 @@ export class FeedbackFormComponent implements OnInit {
   isSuccess = false;
   submitError: SubmitError | null = null;
 
-  readonly subjectLabels: Record<string, string> = {
-    support: 'Техподдержка',
-    sales: 'Отдел продаж',
-    other: 'Другое'
-  };
-
   constructor(private fb: FormBuilder, private http: HttpClient) {
     this.feedbackForm = this.fb.group({
-      name: ['', [Validators.required, Validators.minLength(2)]],
-      email: ['', [Validators.required, Validators.email]],
-      subject: ['', [Validators.required]],
-      message: ['', [Validators.required, Validators.minLength(10)]]
+      date: ['', [Validators.required]],
+      startTime: ['', [Validators.required, Validators.pattern(/^\d{2}:\d{2}$/)]],
+      brewNumber: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(20)]],
+      stretchMachineNumber: ['', [Validators.required]],
+      productBatchNumber: ['', [Validators.required, Validators.pattern(/^\d+$/), Validators.min(1)]],
+      grainBatchNumber: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(20)]],
+      operator: ['', [Validators.required, Validators.minLength(2)]],
+      comments: ['']
     });
   }
 
@@ -62,12 +77,17 @@ export class FeedbackFormComponent implements OnInit {
     return !!(control && control.invalid && (control.dirty || control.touched));
   }
 
-  get formData(): FeedbackData {
-    return this.feedbackForm.value as FeedbackData;
+  get formData(): IdentificationFormData {
+    return this.feedbackForm.value as IdentificationFormData;
   }
 
-  subjectLabel(value: string): string {
-    return this.subjectLabels[value] ?? value;
+  get previewPayload(): IdentificationPayload {
+    return this.buildPayload(this.formData);
+  }
+
+  get stretchMachineLabel(): string {
+    const value = this.formData.stretchMachineNumber;
+    return value ? `№ ${value}` : '';
   }
 
   onReview(): void {
@@ -85,7 +105,16 @@ export class FeedbackFormComponent implements OnInit {
   }
 
   onCancel(): void {
-    this.feedbackForm.reset();
+    this.feedbackForm.reset({
+      date: '',
+      startTime: '',
+      brewNumber: '',
+      stretchMachineNumber: '',
+      productBatchNumber: '',
+      grainBatchNumber: '',
+      operator: '',
+      comments: ''
+    });
     this.clearStorage();
     this.submitError = null;
     this.view = 'form';
@@ -96,8 +125,9 @@ export class FeedbackFormComponent implements OnInit {
       return;
     }
 
-    const payload = this.formData;
-    this.saveToStorage(payload);
+    const data = this.formData;
+    this.saveToStorage(data);
+    const payload = this.buildPayload(data);
     this.isSubmitting = true;
     this.submitError = null;
 
@@ -105,7 +135,16 @@ export class FeedbackFormComponent implements OnInit {
       next: () => {
         this.isSubmitting = false;
         this.clearStorage();
-        this.feedbackForm.reset();
+        this.feedbackForm.reset({
+          date: '',
+          startTime: '',
+          brewNumber: '',
+          stretchMachineNumber: '',
+          productBatchNumber: '',
+          grainBatchNumber: '',
+          operator: '',
+          comments: ''
+        });
         this.view = 'form';
         this.isSuccess = true;
         setTimeout(() => (this.isSuccess = false), 5000);
@@ -115,6 +154,31 @@ export class FeedbackFormComponent implements OnInit {
         this.submitError = this.toSubmitError(err);
       }
     });
+  }
+
+  private buildPayload(data: IdentificationFormData): IdentificationPayload {
+    const formattedDate = this.toDisplayDate(data.date);
+    const brewNumber = (data.brewNumber || '').trim();
+    return {
+      id: `${formattedDate}_${data.startTime}_${brewNumber}`,
+      submittedAt: new Date().toISOString(),
+      date: formattedDate,
+      startTime: data.startTime,
+      brewNumber,
+      stretchMachineNumber: data.stretchMachineNumber,
+      productBatchNumber: Number(data.productBatchNumber),
+      grainBatchNumber: (data.grainBatchNumber || '').trim(),
+      operator: (data.operator || '').trim(),
+      comments: (data.comments || '').trim()
+    };
+  }
+
+  private toDisplayDate(isoDate: string): string {
+    if (!isoDate || !/^\d{4}-\d{2}-\d{2}$/.test(isoDate)) {
+      return isoDate;
+    }
+    const [y, m, d] = isoDate.split('-');
+    return `${d}.${m}.${y}`;
   }
 
   private toSubmitError(err: HttpErrorResponse): SubmitError {
@@ -136,7 +200,7 @@ export class FeedbackFormComponent implements OnInit {
     return { status, statusText, message };
   }
 
-  private saveToStorage(data: FeedbackData): void {
+  private saveToStorage(data: IdentificationFormData): void {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     } catch {
@@ -144,10 +208,13 @@ export class FeedbackFormComponent implements OnInit {
     }
   }
 
-  private loadFromStorage(): FeedbackData | null {
+  private loadFromStorage(): IdentificationFormData | null {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      return raw ? (JSON.parse(raw) as FeedbackData) : null;
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      if (!parsed || typeof parsed !== 'object') return null;
+      return parsed as IdentificationFormData;
     } catch {
       return null;
     }
