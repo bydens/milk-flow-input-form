@@ -1,0 +1,218 @@
+<div class="form-wrapper">
+  <div class="form-card">
+    <div class="form-header">
+      <h2>ПРОТОКОЛ ВАРКИ</h2>
+      @if (view() === 'confirm') {
+        <p>Проверьте введённые данные перед отправкой.</p>
+      }
+    </div>
+
+    <!-- Уведомление об успешной отправке -->
+    @if (isSuccess() && view() === 'form') {
+      <div class="success-message">
+        Данные успешно отправлены. Можете ввести новые.
+      </div>
+    }
+
+    <!-- ФОРМА -->
+    @if (view() === 'form') {
+      <form [formGroup]="form" (ngSubmit)="onReview()" class="brew-form">
+
+        @for (group of fieldGroups; track group.title) {
+          <fieldset class="field-section">
+            <legend>{{ group.title }}</legend>
+            <div class="fields-grid" [style.grid-template-columns]="'repeat(' + group.columns + ', 1fr)'">
+              @for (field of group.fields; track field.key) {
+                <div class="form-group" [class.has-error]="isFieldInvalid(field.key)">
+                  <label [for]="field.key">
+                    {{ field.label }}
+                    @if (field.unit !== '—') {
+                      <span class="unit">({{ field.unit }})</span>
+                    }
+                    @if (!field.required) {
+                      <span class="optional"></span>
+                    }
+                  </label>
+
+                  @switch (field.type) {
+                    @case ('number') {
+                      <input
+                        type="number"
+                        [id]="field.key"
+                        [formControlName]="field.key"
+                        [placeholder]="field.placeholder || ''"
+                        inputmode="decimal"
+                        step="any"
+                      />
+                    }
+                    @case ('time') {
+                      <input
+                        type="time"
+                        [id]="field.key"
+                        [formControlName]="field.key"
+                      />
+                    }
+                    @case ('textarea') {
+                      <textarea
+                        [id]="field.key"
+                        [formControlName]="field.key"
+                        rows="3"
+                        [placeholder]="field.placeholder || ''"
+                      ></textarea>
+                    }
+                    @default {
+                      <input
+                        type="text"
+                        [id]="field.key"
+                        [formControlName]="field.key"
+                        [placeholder]="field.placeholder || ''"
+                        autocomplete="off"
+                      />
+                    }
+                  }
+
+                  @if (isFieldInvalid(field.key)) {
+                    <div class="error-message">
+                      <span>Проверьте значение</span>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </fieldset>
+        }
+
+        <!-- 16. РАСЧЁТ (АВТО) -->
+        <fieldset class="field-section computed-section">
+          <legend>16. РАСЧЁТ (АВТО)</legend>
+          <div class="fields-grid" style="grid-template-columns: 1fr 1fr;">
+            <div class="form-group">
+              <label>Общая масса входа <span class="unit">(kg)</span></label>
+              <div class="computed-value">{{ totalInputMass() | number:'1.2-2' }}</div>
+            </div>
+            <div class="form-group">
+              <label>Выход <span class="unit">(%)</span></label>
+              <div class="computed-value">{{ outputPercent() | number:'1.2-2' }}</div>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- ПРИМЕЧАНИЯ -->
+        <fieldset class="field-section">
+          <legend>ПРИМЕЧАНИЯ</legend>
+          <div class="fields-grid" style="grid-template-columns: 1fr;">
+            <div class="form-group">
+              <label for="notes">Примечания <span class="optional">(необязательно)</span></label>
+              <textarea id="notes" formControlName="notes" rows="3" placeholder="Дополнительная информация"></textarea>
+            </div>
+            <div class="form-group" [class.has-error]="isFieldInvalid('operatorSignature')">
+              <label for="operatorSignature">Подпись оператора (ФИО)</label>
+              <input type="text" id="operatorSignature" formControlName="operatorSignature" autocomplete="name" placeholder="Например, Олена Попова" />
+              @if (isFieldInvalid('operatorSignature')) {
+                <div class="error-message">
+                  <span>Укажите ФИО оператора (мин. 2 символа)</span>
+                </div>
+              }
+            </div>
+          </div>
+        </fieldset>
+
+        <button type="submit" class="submit-btn" [disabled]="form.invalid">
+          Продолжить
+        </button>
+      </form>
+    }
+
+    <!-- ЭКРАН ПОДТВЕРЖДЕНИЯ -->
+    @if (view() === 'confirm') {
+      <div class="confirmation">
+        <dl class="summary">
+          @for (group of fieldGroups; track group.title) {
+            <div class="summary-section-title">{{ group.title }}</div>
+            @for (field of group.fields; track field.key) {
+              @if (getFieldValue(field.key) !== null && getFieldValue(field.key) !== '') {
+                <div class="summary-row">
+                  <dt>{{ field.label }}</dt>
+                  <dd>{{ getFieldValue(field.key) }} <span class="unit-sm">{{ field.unit }}</span></dd>
+                </div>
+              }
+            }
+          }
+
+          <!-- Computed -->
+          <div class="summary-section-title">16. РАСЧЁТ (АВТО)</div>
+          <div class="summary-row">
+            <dt>Общая масса входа</dt>
+            <dd>{{ totalInputMass() | number:'1.2-2' }} <span class="unit-sm">kg</span></dd>
+          </div>
+          <div class="summary-row">
+            <dt>Выход</dt>
+            <dd>{{ outputPercent() | number:'1.2-2' }} <span class="unit-sm">%</span></dd>
+          </div>
+
+          <!-- Notes -->
+          @if (form.value.notes) {
+            <div class="summary-section-title">ПРИМЕЧАНИЯ</div>
+            <div class="summary-row">
+              <dt>Примечания</dt>
+              <dd class="summary-message">{{ form.value.notes }}</dd>
+            </div>
+          }
+          <div class="summary-row">
+            <dt>Подпись оператора</dt>
+            <dd>{{ form.value.operatorSignature }}</dd>
+          </div>
+        </dl>
+
+        <!-- Ошибка сервера -->
+        @if (submitError()) {
+          <div class="server-error-message">
+            <div class="server-error-title">Не удалось отправить данные.</div>
+            <div class="server-error-details">
+              @if (submitError()!.status) {
+                <span>Код: {{ submitError()!.status }} {{ submitError()!.statusText }}</span>
+              }
+              @if (submitError()!.message) {
+                <span>{{ submitError()!.message }}</span>
+              }
+            </div>
+            <div class="server-error-hint">
+              Данные сохранены локально — вы можете повторить отправку позже.
+            </div>
+          </div>
+        }
+
+        <div class="confirm-actions">
+          <button
+            type="button"
+            class="action-btn cancel-btn"
+            (click)="onCancel()"
+            [disabled]="isSubmitting()"
+          >
+            Отменить
+          </button>
+          <button
+            type="button"
+            class="action-btn edit-btn"
+            (click)="onEdit()"
+            [disabled]="isSubmitting()"
+          >
+            Исправить
+          </button>
+          <button
+            type="button"
+            class="action-btn submit-btn"
+            (click)="onSubmit()"
+            [disabled]="isSubmitting()"
+          >
+            @if (!isSubmitting()) {
+              <span>Отправить</span>
+            } @else {
+              <span class="loader"></span>
+            }
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+</div>

@@ -1,4 +1,5 @@
 export const environment = {
   production: false,
-  n8nWebhookUrl: 'https://automation.bydens.net/webhook-test/identification-form', // Замените на ваш тестовый URL-адрес n8n
+  n8nWebhookUrl: 'https://automation.bydens.net/webhook-test/identification-form',
+  n8nBrewProtocolWebhookUrl: 'https://automation.bydens.net/webhook-test/brew-protocol-form',
 };

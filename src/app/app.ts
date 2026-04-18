@@ -1,13 +1,11 @@
-import { Component, signal } from '@angular/core';
-import { FeedbackFormComponent } from './feedback-form/feedback-form.component';
+import { Component } from '@angular/core';
+import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 
 @Component({
   selector: 'app-root',
-  standalone: true,
-  imports: [FeedbackFormComponent],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive],
   templateUrl: './app.html',
-  styleUrl: './app.scss'
+  styleUrl: './app.scss',
+  host: { class: 'app-root' },
 })
-export class App {
-  protected readonly title = signal('milk-flow-input-form');
-}
+export class App {}
